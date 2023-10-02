@@ -19,9 +19,6 @@ services:
     image: phmtsweb/node-2:prod
     container_name: app_node
     tty: true
-    volumes:
-      - ./node:/app
-      - ./node/node_modules:/app/node_modules
     networks:
       - node-network
     depends_on:
