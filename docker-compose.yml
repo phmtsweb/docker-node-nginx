@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  nginx:
+    build: 
+     context: ./nginx
+    image: phmtsweb/nginx-2:prod
+    container_name: nginx
+    ports:
+      - "8080:80"
+    networks:
+      - node-network
+    depends_on:
+      - app
+  app:
+    build:
+      context: ./node
+    image: phmtsweb/node-2:prod
+    container_name: app_node
+    tty: true
+    volumes:
+      - ./node:/app
+      - ./node/node_modules:/app/node_modules
+    networks:
+      - node-network
+    depends_on:
+      - db
+    command: ["dockerize", "-wait", "tcp://db:3306", "npm", "start"]
+  db:
+    image: mysql:5.7
+    container_name: mysql_db
+    command: --innodb_use_native-aio=0
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nodedb
+    networks:
+     - node-network
+
+networks:
+  node-network:
+    driver: bridge
